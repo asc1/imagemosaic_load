@@ -72,6 +72,7 @@ if __name__ == "__main__":
     parser.add_argument('--user', default='geoserver', help='Postgres User')
     parser.add_argument('--password', help='Postgres Password')
     parser.add_argument('--db', help='Postgres database')
+    parser.add_argument('--layer', help='layer name (schema.table_name)')
     parser.add_argument('granules', metavar='granules', nargs='+', help='Path to granules (wildcards supported')
 
     args = parser.parse_args()
@@ -93,7 +94,7 @@ if __name__ == "__main__":
         exit(-1)
     log.debug("Connected to PostgreSQL")
 
-    lyr = conn.GetLayer('landsat_external')
+    lyr = conn.GetLayer(args.table)
 
     for path in args.granules:
         log.debug("Processing %s", path)
