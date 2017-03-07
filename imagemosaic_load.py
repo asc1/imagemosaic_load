@@ -116,16 +116,12 @@ if __name__ == "__main__":
     processed = 0
     while True:
         granule = granuleQueue.get()
-        # footprint = ogr.Geometry(ogr.wkbPolygon)
-        # footprint.AddGeometry(footprint_ring)
 
         log.info("Image %s - Footprint: %s", granule['location'], granule['footprint'])
 
         feature = ogr.Feature(lyr.GetLayerDefn())
 
         feature.SetField("location", granule['location'])
-        #date = datetime.datetime.now()
-        #feature.SetField("ingestion", date.year, date.month, date.day, date.hour, date.minute, date.second, 1)
 
         feature.SetGeometry(ogr.CreateGeometryFromWkt(granule['footprint']))
         lyr.CreateFeature(feature)
