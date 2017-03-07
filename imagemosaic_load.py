@@ -94,7 +94,7 @@ if __name__ == "__main__":
         exit(-1)
     log.debug("Connected to PostgreSQL")
 
-    lyr = conn.GetLayer(args.table)
+    lyr = conn.GetLayer(args.layer)
 
     for path in args.granules:
         log.debug("Processing %s", path)
