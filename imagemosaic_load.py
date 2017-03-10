@@ -87,17 +87,6 @@ if __name__ == "__main__":
     parser.add_argument('granules', metavar='granules', nargs='+', help='Path to granules (wildcards supported')
 
     args = parser.parse_args()
-    manager = Manager()
-    fileQueue = manager.Queue()
-    granuleQueue = manager.Queue()
-    granuleCount = manager.Value('i', 0)
-    finished = manager.Value('i', 0)
-    fileListProcess = Process(target=file_lister, args=(args.granules, fileQueue, granuleCount, finished, ))
-
-    fileListProcess.start()
-
-    granulePool = Pool(int(args.threads))
-    granulePool.apply_async(granule_processor, args=(fileQueue, granuleQueue, ))
 
     connString = "PG: host=%s port=%s dbname=%s user=%s password=%s" % (
         args.host, args.port, args.db, args.user, args.password)
@@ -112,6 +101,18 @@ if __name__ == "__main__":
 
     log.info("GetLayer %s", args.layer)
     lyr = conn.GetLayer(args.layer)
+
+    manager = Manager()
+    fileQueue = manager.Queue()
+    granuleQueue = manager.Queue()
+    granuleCount = manager.Value('i', 0)
+    finished = manager.Value('i', 0)
+    fileListProcess = Process(target=file_lister, args=(args.granules, fileQueue, granuleCount, finished, ))
+
+    fileListProcess.start()
+
+    granulePool = Pool(int(args.threads))
+    granulePool.apply_async(granule_processor, args=(fileQueue, granuleQueue, ))
 
     processed = 0
     while True:
@@ -130,7 +131,6 @@ if __name__ == "__main__":
         log.debug("processed %d, total %d, finished %d", processed, granuleCount.value, finished.value)
         if finished.value and granuleCount.value == processed:
             break
-
 
     fileListProcess.join()
     granulePool.close()
